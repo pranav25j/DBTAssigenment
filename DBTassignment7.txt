@@ -1,0 +1,69 @@
+use assignment7;
+
+create table Ord_master (Ord_no int,Cust_cd varchar(5),status varchar(5));
+select * from Ord_master;
+
+insert into Ord_master values(1,'C!','P');
+
+create table Ord_dtl (Ord_no int,Prod_cd  varchar(5),Qty int);
+insert into Ord_dtl values(1,'P1',100);
+insert into Ord_dtl values(1,'P2',200);
+insert into Ord_dtl values(1,'P3',100);
+
+select * from Ord_dtl;
+delete from Ord_dtl where Prod_cd='p2';
+
+create table  Prod_master (Prod_cd  varchar (5),Prod_name  varchar(10),Qty_in_stock int,Booked_qty int);
+insert into  Prod_master values( 'P1','Floppies',10000,1000);
+insert into  Prod_master values(  'P2' ,'Printers',5000 ,600);
+insert into  Prod_master values(   'P3' ,'Modems'  ,3000 ,200);
+select * from Prod_master;
+
+-- QUESTION1
+delimiter $$
+create trigger xyz1 before insert on Ord_dtl
+for each row
+begin
+UPDATE Prod_master
+SET Booked_qty=new.Qty+Booked_qty
+WHERE Prod_cd=new.Prod_cd; 
+end;
+end $$
+
+-- QUESTION2
+delimiter $$
+create trigger d before delete on Ord_dtl
+for each row
+BEGIN
+UPDATE Prod_master
+SET Booked_qty=old.Qty-Booked_qty
+WHERE Prod_cd=old.Prod_cd;
+ end;
+end$$
+
+-- QUESTION3
+
+create table dept(dept_no int,salary int);
+insert into dept values(1,10000),(2,20000);
+select * from dept;
+create table employ(emp_name varchar(30),designation varchar(20),salary int,dept_no int);
+
+
+delimiter $$
+create trigger sal after insert on employ
+for each row
+begin
+update dept set salary=salary + new.salary where dept_no=new.dept_no;
+end $$
+
+insert into employ values('pranav','manager',1000,1);
+
+
+delimiter $$
+create trigger sal1 after delete on employ
+for each row
+begin
+update dept set salary=salary-old.salary where dept_no=old.dept_no;
+end $$
+
+delete from employ where  emp_name='pranav';
